@@ -28,11 +28,69 @@ function plugin_init_assetaudit()
 {
 	global $PLUGIN_HOOKS, $CFG_GLPI;
 	$PLUGIN_HOOKS['csrf_compliant']['assetaudit'] = true;
-	$CFG_GLPI['plugin_assetaudit_itemtypes'] = [
-      'Computer', 'Monitor', 'Software', 'NetworkEquipment',
-      'Peripheral', 'Printer', 'CartridgeItem', 'ConsumableItem',
-      'Phone', 'Enclosure', 'PDU', 'PassiveDCEquipment',' Appliance', 'Cluster'
+	$common_audit_fields = [
+	   'name' => [
+         'label'     => __('Name'),
+         'type'      => 'text'
+      ],
+      'states_id' => [
+         'label'     => Location::getTypeName(1),
+         'type'      => 'item',
+         'itemtype'  => State::class
+      ],
+      'manufacturers_id' => [
+         'label'     => Manufacturer::getTypeName(1),
+         'type'      => 'item',
+         'itemtype'  => Manufacturer::class
+      ],
+      'serial' => [
+         'label'     => __('Serial number'),
+         'type'      => 'text'
+      ],
+      'otherserial' => [
+         'label'     => __('Inventory number'),
+         'type'      => 'text'
+      ],
+      'locations_id' => [
+         'label'     => Location::getTypeName(1),
+         'type'      => 'item',
+         'itemtype'  => Location::class
+      ],
+      'users_id' => [
+         'label'     => User::getTypeName(1),
+         'type'      => 'item',
+         'itemtype'  => User::class
+      ],
+      'groups_id' => [
+         'label'     => Group::getTypeName(1),
+         'type'      => 'item',
+         'itemtype'  => Group::class
+      ],
+      'comment' => [
+         'label'  => __('Comment'),
+         'type'   => 'textarea'
+      ]
    ];
+	$CFG_GLPI['plugin_assetaudit_itemtypes'] = [
+      'Computer' => $common_audit_fields,
+      'Monitor' => $common_audit_fields,
+      'NetworkEquipment' => $common_audit_fields,
+      'Peripheral' => $common_audit_fields,
+      'Printer' => $common_audit_fields,
+      'CartridgeItem' => $common_audit_fields,
+      'ConsumableItem' => $common_audit_fields,
+      'Phone' => $common_audit_fields,
+      'Enclosure' => $common_audit_fields,
+      'PDU' => $common_audit_fields,
+      'PassiveDCEquipment' => $common_audit_fields,
+      'Appliance' => $common_audit_fields,
+      'Cluster' => $common_audit_fields
+   ];
+   if (Session::haveRight('plugin_assetaudit_audit', READ)) {
+      $PLUGIN_HOOKS['menu_toadd']['assetaudit'] = ['plugins' => PluginAssetauditAudit::class];
+   }
+   Plugin::registerClass(PluginAssetauditProfile::class, ['addtabon' => ['Profile']]);
+   $PLUGIN_HOOKS['add_css']['assetaudit'][] = 'css/assetaudit.css';
 }
 
 function plugin_version_assetaudit()
