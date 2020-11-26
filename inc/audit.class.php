@@ -228,7 +228,6 @@ class PluginAssetauditAudit extends CommonDBTM {
       $out .= "<tr>";
       $out .= "<td class='center assetaudit-btngroup' style='height: 60px;' colspan='4'>";
       $out .= "<input type='submit' class='submit assetaudit-success' name='audit_success' value=\"".__('Complete Audit', 'assetaudit')."\">";
-      $out .= "<input type='submit' class='submit assetaudit-failure' name='create_ticket' value=\"".__('Create Ticket', 'assetaudit')."\">";
       $out .= Html::getSimpleForm(Ticket::getFormURL(),
          '_add_fromitem', __('New ticket for this item...'),
          ['itemtype' => $item->getType(),

@@ -65,12 +65,6 @@ if (isset($_REQUEST['choose_device'])) {
    $checkParams(['itemtype', 'id']);
    PluginAssetauditAudit::completeAudit($_REQUEST['itemtype'], $_REQUEST['id'], $_REQUEST['data']);
    Html::redirect(PluginAssetauditAudit::getQuickAuditUrl(true));
-} else if (isset($_REQUEST['create_ticket'])) {
-   $checkParams(['itemtype', 'id']);
-   Html::redirect(Ticket::getFormURL(true) . '?' . Toolbox::append_params([
-      'itemtype'  => $_REQUEST['itemtype'],
-      'items_id'  => $_REQUEST['id']
-   ]));
 } else {
    PluginAssetauditAudit::showQuickAuditForm();
 }
