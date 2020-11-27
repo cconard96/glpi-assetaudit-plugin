@@ -112,7 +112,7 @@ class PluginAssetauditAudit extends CommonDBTM {
     */
    public static function getItemInformationHtml(CommonDBTM $item): string
    {
-      global $DB;
+      global $DB, $CFG_GLPI;
 
       $itemtype = $item::getType();
       $id = $item->getID();
@@ -126,110 +126,55 @@ class PluginAssetauditAudit extends CommonDBTM {
       $out .= "</th>";
       $out .= "</tr>";
 
-      $out .= "<tr class='tab_bg_1'>";
-      $out .= "<td>".__('Name')."</td>";
-      $out .= "<td>";
-      $objectName = autoName($item->fields["name"], "name", false, $itemtype, $item->fields["entities_id"]);
-      $out .= Html::autocompletionTextField($item, 'name', [
-         'value'     => $objectName,
-         'display'   => false
-      ]);
-      $out .= "</td>";
-      $out .= "<td>".__('Status')."</td>";
-      $out .= "<td>";
-      $out .= State::dropdown([
-         'value'     => $item->fields["states_id"],
-         'entity'    => $item->fields["entities_id"],
-         'condition' => ['`is_visible_computer`', 1],
-         'display'   => false
-      ]);
-      $out .= "</td></tr>\n";
+      $fields = $CFG_GLPI['plugin_assetaudit_itemtypes'][$itemtype] ?? [];
+      $odd = false;
+      foreach ($fields as $field_name => $field_data) {
+         if (!$odd) {
+            $out .= '<tr>';
+         }
 
-      $out .= "<tr class='tab_bg_1'>";
-      $out .= "<td>".__('Location')."</td>";
-      $out .= "<td>";
-      $out .= Location::dropdown([
-         'value'     => $item->fields["locations_id"],
-         'entity'    => $item->fields["entities_id"],
-         'display'   => false
-      ]);
-      $out .= "</td>";
-      $out .= "<td>".__('Type')."</td>";
-      $out .= "<td>";
-      /** @var CommonDeviceType $type */
-      $type = $itemtype.'Type';
-      if ($DB->tableExists($type::getTable())) {
-         $out .= ComputerType::dropdown([
-            'value' => $item->fields[$type::getForeignKeyField()],
-            'display' => false
-         ]);
+         $out .= "<td>{$field_data['label']}</td>";
+         $out .= '<td>';
+         switch ($field_data['type']) {
+            case 'text':
+               $out .= Html::input($field_name, [
+                  'value'  => $item->fields[$field_name]
+               ]);
+               break;
+            case 'item':
+               $p = [
+                  'value'     => $item->fields[$field_name],
+                  'entity'    => $item->fields["entities_id"],
+                  'display'   => false
+               ];
+               if (isset($field_data['condition'])) {
+                  $p_key = str_replace('{itemtype}', $itemtype, $field_data['condition'][0]);
+                  $p_val = str_replace('{itemtype}', $itemtype, $field_data['condition'][1]);
+                  $p['condition'] = [$p_key, $p_val];
+               }
+               if (isset($field_data['right'])) {
+                  $p['right'] = $field_data['right'];
+               }
+               /** @var CommonDBTM $dropdown_type */
+               $dropdown_type = $field_data['itemtype'];
+               $out .= $dropdown_type::dropdown($p);
+               break;
+            case 'textarea':
+               $out .= "<textarea cols='45' rows='3' name='comment'>".$item->fields[$field_name]."</textarea>";
+         }
+         $out .= '</td>';
+
+         $odd = !$odd;
+         if (!$odd) {
+            $out .= '</tr>';
+         }
       }
-      $out .= "</td></tr>\n";
-
-      $out .= "<tr class='tab_bg_1'>";
-      $out .= "<td>".__('User')."</td>";
-      $out .= "<td>";
-      $out .= User::dropdown([
-         'value'     => $item->fields["users_id"],
-         'entity'    => $item->fields["entities_id"],
-         'right'     => 'all',
-         'display'   => false
-      ]);
-      $out .= "</td>";
-      $out .= "<td>".__('Manufacturer')."</td>";
-      $out .= "<td>";
-      $out .= Manufacturer::dropdown([
-         'value'     => $item->fields["manufacturers_id"],
-         'display'   => false
-      ]);
-      $out .= "</td></tr>\n";
-
-      $out .= "<tr class='tab_bg_1'>";
-      $out .= "<td rowspan='3'>".__('Comments')."</td>";
-      $out .= "<td rowspan='3' class='middle'>";
-
-      $out .= "<textarea cols='45' rows='3' name='comment' >".$item->fields["comment"];
-      $out .= "</textarea></td>";
-      /** @var CommonDeviceModel $model */
-      $model = $itemtype.'Model';
-      if ($DB->tableExists($model::getTable())) {
-         $out .= "<td>";
-         $out .= __('Model');
-         $out .= "</td>";
-         $out .= "<td>";
-         $out .= $model::dropdown([
-            'value'     => $item->fields[$model::getForeignKeyField()],
-            'display'   => false
-         ]);
-         $out .= "</td>";
-      } else {
-         $out .= "<td colspan='2'></td>";
-      }
-      $out .= "</tr>";
-
-      $out .= "<tr class='tab_bg_1'>";
-      $out .= "<td>".__('Serial number')."</td>";
-      $out .= "<td >";
-      $out .= Html::autocompletionTextField($item,'serial', [
-         'display'   => false
-      ]);
-      $out .= "</td></tr>\n";
-
-      $out .= "<tr class='tab_bg_1'>";
-      $out .= "<td>".__('Inventory number')."</td>";
-      $out .= "<td>";
-      $objectName = autoName($item->fields["otherserial"], "otherserial", false, $item->getType(), $item->fields["entities_id"]);
-      $out .= Html::autocompletionTextField($item, 'otherserial', [
-         'value'  => $objectName,
-         'display'   => false
-      ]);
-      $out .= "</td></tr>\n";
 
       $out .= "<tr>";
       $out .= "<td class='center assetaudit-btngroup' style='height: 60px;' colspan='4'>";
       $out .= "<input type='submit' class='submit assetaudit-success' name='audit_success' value=\"".__('Complete Audit', 'assetaudit')."\">";
       $out .= Html::getSimpleForm(Ticket::getFormURL(),
-         '_add_fromitem', __('New ticket for this item...'),
+         '_add_fromitem', __('Fail Audit. Create Ticket.'),
          ['itemtype' => $item->getType(),
             'items_id' => $item->getID()], '', 'class="vsubmit assetaudit-failure"');
       $out .= Html::hidden('itemtype', ['value' => $itemtype]);
