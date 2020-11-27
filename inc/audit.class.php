@@ -69,7 +69,7 @@ class PluginAssetauditAudit extends CommonDBTM {
    public static function showQuickAuditForm($item = null): void
    {
       $out = '<div id="assetaudit-audit-container">';
-      $out .= "<form method='GET' action=\"".self::getQuickAuditUrl(true)."\">";
+      $out .= "<form method='POST' action=\"".self::getQuickAuditUrl(true)."\">";
 
       $out .= "<table class='tab_cadre_fixe'>";
 
@@ -82,7 +82,7 @@ class PluginAssetauditAudit extends CommonDBTM {
       $out .= "</td></tr>";
 
       $out .= "<tr><td class='center' style='height: 80px;'>";
-      $out .= "<input type='text' name='searchnumber' value='' size='50' style='height: 40px;font-size: 20px;' autofocus />";
+      $out .= "<input type='text' name='search_criteria' value='' size='50' style='height: 40px;font-size: 20px;' autofocus />";
       $out .= "</td></tr>";
 
       $out .= "<tr><td class='center' style='height: 40px;'>";
@@ -198,7 +198,7 @@ class PluginAssetauditAudit extends CommonDBTM {
 
       $out .= "<tr>";
       $out .= "<th colspan='5'>";
-      $out .= __('Multiple devices found, choose the right', 'assetaudit');
+      $out .= __('Please select one of the following matches', 'assetaudit');
       $out .= "</th>";
       $out .= "</tr>";
 
@@ -217,7 +217,7 @@ class PluginAssetauditAudit extends CommonDBTM {
             $out .= Html::hidden('itemtype', ['value' => $itemtype]);
             $out .= Html::hidden('id', ['value' => $id]);
             $out .= "<input type='submit' name='choose_device' value=\"".
-               __('Choose it', 'assetaudit')."\" class='submit' >";
+               __('Select', 'assetaudit')."\" class='submit' >";
             $out .= Html::closeForm(false);
             $out .= "</td>";
             $out .= "</tr>";

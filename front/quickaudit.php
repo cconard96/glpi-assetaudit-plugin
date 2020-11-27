@@ -43,15 +43,14 @@ if (isset($_REQUEST['choose_device'])) {
    $item = new $_REQUEST['itemtype'];
    $item->getFromDB($_REQUEST['id']);
    PluginAssetauditAudit::showQuickAuditForm($item);
-   //PluginAssetauditAudit::getItemInformationHtml($item);
-} else if (isset($_REQUEST["search_item"]) && !empty($_REQUEST['searchnumber'])) {
-   $found = PluginAssetauditAudit::quickAssetSearch($_REQUEST['searchnumber']);
+} else if (isset($_REQUEST["search_item"]) && !empty($_REQUEST['search_criteria'])) {
+   $found = PluginAssetauditAudit::quickAssetSearch($_REQUEST['search_criteria']);
    $found_count = 0;
    foreach ($found as $itemtype => $ids) {
       $found_count += count($ids);
    }
    if ($found_count === 0) {
-      Session::addMessageAfterRedirect(__('No device found with the number:', 'assetaudit')." ".$_REQUEST['searchnumber'], false, WARNING);
+      Session::addMessageAfterRedirect(sprintf(__('No asset matching %s:', 'assetaudit'), $_REQUEST['search_criteria']), false, WARNING);
       Html::back();
    } else if ($found_count > 1) {
       echo PluginAssetauditAudit::getAssetPickerHtml($found);
