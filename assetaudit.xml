@@ -3,7 +3,7 @@
     <root>
         <name>Asset Audit</name>
         <key>assetaudit</key>
-        <state>stable</state>
+        <state>alpha</state>
         <logo />
         <description>
             <short>
@@ -33,6 +33,8 @@
         <tags>
             <en />
         </tags>
-        <screenshots />
+        <screenshots>
+            <screenshot>https://raw.githubusercontent.com/cconard96/glpi-assetaudit-plugin/master/screenshots/QuickAudit.png</screenshot>
+        </screenshots>
     </root>
 </xml>
