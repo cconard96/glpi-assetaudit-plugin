@@ -2,7 +2,7 @@
 /*
  -------------------------------------------------------------------------
  Asset Audit Plugin for GLPI
- Copyright (C) 2020 by Curtis Conard
+ Copyright (C) 2020-2021 by Curtis Conard
  https://github.com/cconard96/glpi-assetaudit-plugin
  -------------------------------------------------------------------------
  LICENSE
@@ -41,7 +41,6 @@ final class PluginAssetauditMigration {
 
    /**
     * @param string $version
-    * @param string $plugin_key
     */
    public function __construct(string $version)
    {
