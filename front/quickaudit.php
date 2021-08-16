@@ -62,7 +62,7 @@ if (isset($_REQUEST['choose_device'])) {
    }
 } else if (isset($_REQUEST['audit_success'])) {
    $checkParams(['itemtype', 'id']);
-   PluginAssetauditAudit::completeAudit($_REQUEST['itemtype'], $_REQUEST['id'], $_REQUEST['data']);
+   PluginAssetauditAudit::completeAudit($_REQUEST['itemtype'], $_REQUEST['id'], $_REQUEST);
    Html::redirect(PluginAssetauditAudit::getQuickAuditUrl(true));
 } else {
    PluginAssetauditAudit::showQuickAuditForm();
