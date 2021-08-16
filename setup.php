@@ -34,7 +34,7 @@ function plugin_init_assetaudit()
          'type'      => 'text'
       ],
       'states_id' => [
-         'label'     => Location::getTypeName(1),
+         'label'     => State::getTypeName(1),
          'type'      => 'item',
          'itemtype'  => State::class
       ],
