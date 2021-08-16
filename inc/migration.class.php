@@ -115,8 +115,8 @@ final class PluginAssetauditMigration {
                   `date_planned_end` timestamp NOT NULL,
                   `date_actual_start` timestamp NOT NULL,
                   `date_actual_end` timestamp NOT NULL,
-                  `itemtype_auditor` varchar(100) NOT NULL,
-                  `items_id_auditor` int(11) NOT NULL,
+                  `itemtype_auditor` varchar(100) DEFAULT NULL,
+                  `items_id_auditor` int(11) DEFAULT NULL,
                   `audit_status` int(11) NOT NULL DEFAULT 0,
                   `entities_id` int(11) NOT NULL DEFAULT 0,
                   `is_recursive` tinyint(1) NOT NULL DEFAULT 0,
@@ -133,7 +133,7 @@ final class PluginAssetauditMigration {
                   `plugin_assetaudit_audits_id` int(11) NOT NULL,
                   `itemtype` varchar(100) NOT NULL,
                   `items_id` int(11) NOT NULL,
-                  `audit_status` tinyint(1) NOT NULL,
+                  `audit_status` tinyint(1) DEFAULT 0,
                 PRIMARY KEY (`id`),
                 UNIQUE KEY `unicity` (`plugin_assetaudit_audits_id`,`itemtype`,`items_id`)
                ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci";
