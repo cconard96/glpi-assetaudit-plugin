@@ -4,7 +4,7 @@
         <name>Asset Audit</name>
         <key>assetaudit</key>
         <state>alpha</state>
-        <logo />
+        <logo>https://raw.githubusercontent.com/cconard96/glpi-assetaudit-plugin/master/Logo.png</logo>
         <description>
             <short>
                 <en>Audit the physical state of assets and update the last physical inventory date</en>

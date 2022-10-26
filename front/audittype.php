@@ -20,32 +20,7 @@
  --------------------------------------------------------------------------
  */
 
-function plugin_assetaudit_install()
-{
-   $migration = new PluginAssetauditMigration(PLUGIN_ASSETAUDIT_VERSION);
-   $migration->applyMigrations();
-	return true;
-}
+include ('../../../inc/includes.php');
 
-function plugin_assetaudit_uninstall()
-{
-   PluginAssetauditDBUtil::dropTableOrDie('glpi_plugin_assetaudit_audits');
-   PluginAssetauditDBUtil::dropTableOrDie('glpi_plugin_assetaudit_audits_items');
-	return true;
-}
-
-function plugin_assetaudit_MassiveActions($itemtype)
-{
-   global $CFG_GLPI;
-
-   $actions = [];
-   if (array_key_exists($itemtype, $CFG_GLPI['plugin_assetaudit_itemtypes'])) {
-      $actions[PluginAssetauditAudit::class.MassiveAction::CLASS_ACTION_SEPARATOR.'audit']
-         = __('Audit', 'assetaudit');
-   }
-   return $actions;
-}
-
-function plugin_assetaudit_getDropdown() {
-   return ['PluginAssetauditAuditType' => PluginAssetauditAuditType::getTypeName(2)];
-}
+$dropdown = new PluginAssetauditAuditType();
+include (GLPI_ROOT . "/front/dropdown.common.php");

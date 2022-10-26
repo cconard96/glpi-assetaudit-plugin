@@ -29,6 +29,16 @@ class PluginAssetauditAudit extends CommonDBTM {
 
    public static $rightname = 'plugin_assetaudit_audit';
 
+   public const AUDIT_TYPE_SPECIFIC_ITEMS = 0;
+
+   public const AUDIT_TYPE_LOCATION = 1;
+
+   public const AUDIT_STATUS_NOTSTARTED = 0;
+
+   public const AUDIT_STATUS_STARTED = 1;
+
+   public const AUDIT_STATUS_FINISHED = 2;
+
    public static function getTypeName($nb = 0)
    {
       return _n('Audit', 'Audits', $nb, 'assetaudit');
@@ -60,6 +70,89 @@ class PluginAssetauditAudit extends CommonDBTM {
    public static function getQuickAuditUrl(bool $full = true): string
    {
       return Plugin::getWebDir('assetaudit', $full) . '/front/quickaudit.php';
+   }
+
+   public function defineTabs($options = [])
+   {
+      $tabs = [];
+      $this->addDefaultFormTab($tabs);
+      $this->addStandardTab(PluginAssetauditAudit_Item::class, $tabs, $options);
+      return $tabs;
+   }
+
+   static function showMassiveActionsSubForm(MassiveAction $ma)
+   {
+
+      switch ($ma->getAction()) {
+         case 'audit':
+            echo Html::submit(__('Audit', 'assetaudit'), ['name' => 'massiveaction'])."</span>";
+
+            return true;
+      }
+      return parent::showMassiveActionsSubForm($ma);
+   }
+
+   static function processMassiveActionsForOneItemtype(MassiveAction $ma, CommonDBTM $item, array $ids)
+   {
+      global $DB;
+
+      switch ($ma->getAction()) {
+         case 'audit' :
+            $input = $ma->getInput();
+
+            foreach ($ids as $id) {
+               if ($item->getFromDB($id)) {
+                  try {
+                     static::auditAsset($item::getType(), $id);
+                     $ma->itemDone($item->getType(), $id, MassiveAction::ACTION_OK);
+                  } catch (RuntimeException $e) {
+                     $ma->itemDone($item->getType(), $id, MassiveAction::ACTION_KO);
+                  }
+               } else {
+                  $ma->itemDone($item->getType(), $id, MassiveAction::ACTION_KO);
+                  $ma->addMessage(__("Something went wrong"));
+               }
+            }
+            return;
+
+      }
+      parent::processMassiveActionsForOneItemtype($ma, $item, $ids);
+   }
+
+   /**
+    * @param $itemtype
+    * @param $id
+    * @throws RuntimeException
+    */
+   public static function auditAsset($itemtype, $id): void
+   {
+      $infocom = new Infocom();
+      $infocom_data = [
+         'inventory_date' => $_SESSION['glpi_currenttime']
+      ];
+      if ($infocom->getFromDBforDevice($itemtype, $id)) {
+         $infocom_success = $infocom->update([
+            'id' => $infocom->getID()
+         ] + $infocom_data);
+      } else {
+         $infocom_success = $infocom->add([
+            'itemtype'  => $itemtype,
+            'items_id'  => $id
+         ] + $infocom_data);
+      }
+      if (!$infocom_success) {
+         throw new \RuntimeException(__('Asset audit failed. Could not update last physical inventory date.', 'assetaudit'));
+      }
+   }
+
+   public function createFailureTicket()
+   {
+
+   }
+
+   protected function getItemsForAudit(int $audit_id)
+   {
+
    }
 
    /**
@@ -286,6 +379,53 @@ class PluginAssetauditAudit extends CommonDBTM {
          }
       }
       return $found_items;
+   }
+
+   public function showItemAuditForm($itemtype, $items_id)
+   {
+      echo Html::submit(__('Audit', 'assetaudit'), ['name' => 'massiveaction']);
+   }
+
+   public function showAuditForm(array $items)
+   {
+      echo '<div class="audit-form-container"><div class="item-list">';
+      echo '</div>';
+      echo '<div class="audit-form">';
+      echo '</div>';
+      echo '</div>';
+   }
+
+   public function showForm($ID, $options = [])
+   {
+      if (!Session::haveRight('config', UPDATE)) {
+         return false;
+      }
+
+      $this->initForm($ID, $options);
+      $this->showFormHeader($options);
+
+      echo "<tr class='tab_bg_1'>";
+      echo "<td>".__('Name')."</td>";
+      echo "<td>";
+      Html::autocompletionTextField($this, "name");
+      echo "</td>";
+
+      echo "<td rowspan='3' class='middle right'>".__('Comments')."</td>";
+      echo "<td class='center middle' rowspan='3'><textarea cols='45' rows='4' name='comment'>{$this->fields["comment"]}</textarea></td></tr>";
+
+      echo "<tr class='tab_bg_1'>";
+      echo "<td>".__('Audit Type', 'assetaudit')."</td>";
+      echo "<td>";
+      PluginAssetauditAuditType::dropdown([
+         'name'   => 'plugin_assetaudit_audittypes_id',
+         'value'  => $this->fields['plugin_assetaudit_audittypes_id']
+      ]);
+      echo "</td>";
+
+      echo "</tr>";
+
+      $this->showFormButtons($options);
+      return true;
    }
 
    public static function completeAudit($itemtype, $items_id, $update, $audit = null): void

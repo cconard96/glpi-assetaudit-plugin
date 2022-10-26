@@ -109,12 +109,18 @@ final class PluginAssetauditMigration {
          $query = "CREATE TABLE `glpi_plugin_assetaudit_audits` (
                   `id` int(11) NOT NULL auto_increment,
                   `name` varchar(255) NOT NULL,
+                  `comment` TEXT DEFAULT NULL,
+                  `plugin_assetaudit_audittypes_id` int(11) NOT NULL DEFAULT 0,
                   `date_planned_start` timestamp NOT NULL,
                   `date_planned_end` timestamp NOT NULL,
                   `date_actual_start` timestamp NOT NULL,
                   `date_actual_end` timestamp NOT NULL,
-                  `itemtype_auditor` varchar(100) NOT NULL,
-                  `items_id_auditor` int(11) NOT NULL,
+                  `itemtype_auditor` varchar(100) DEFAULT NULL,
+                  `items_id_auditor` int(11) DEFAULT NULL,
+                  `audit_status` int(11) NOT NULL DEFAULT 0,
+                  `entities_id` int(11) NOT NULL DEFAULT 0,
+                  `is_recursive` tinyint(1) NOT NULL DEFAULT 0,
+                  `locations_id` int(11) DEFAULT NULL,
                 PRIMARY KEY (`id`)
                ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci";
          $this->db->queryOrDie($query, 'Error creating glpi_plugin_assetaudit_audits table' . $this->db->error());
@@ -122,14 +128,25 @@ final class PluginAssetauditMigration {
       if (!$this->db->tableExists('glpi_plugin_assetaudit_audits_items')) {
          $query = "CREATE TABLE `glpi_plugin_assetaudit_audits_items` (
                   `id` int(11) NOT NULL auto_increment,
-                  `glpi_plugin_assetaudit_audits_id` int(11) NOT NULL,
+                  `entities_id` int(11) NOT NULL DEFAULT 0,
+                  `is_recursive` tinyint(1) NOT NULL DEFAULT 0,
+                  `plugin_assetaudit_audits_id` int(11) NOT NULL,
                   `itemtype` varchar(100) NOT NULL,
                   `items_id` int(11) NOT NULL,
-                  `audit_status` tinyint(1) NOT NULL,
+                  `audit_status` tinyint(1) DEFAULT 0,
                 PRIMARY KEY (`id`),
-                UNIQUE KEY `unicity` (`glpi_plugin_assetaudit_audits_id`,`itemtype`,`items_id`)
+                UNIQUE KEY `unicity` (`plugin_assetaudit_audits_id`,`itemtype`,`items_id`)
                ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci";
          $this->db->queryOrDie($query, 'Error creating glpi_plugin_assetaudit_audits_items table' . $this->db->error());
+      }
+      if (!$this->db->tableExists('glpi_plugin_assetaudit_audittypes')) {
+         $query = "CREATE TABLE `glpi_plugin_assetaudit_audittypes` (
+                  `id` int(11) NOT NULL auto_increment,
+                  `name` varchar(255) NOT NULL,
+                  `comment` varchar(255) DEFAULT NULL,
+                PRIMARY KEY (`id`)
+               ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci";
+         $this->db->queryOrDie($query, 'Error creating glpi_plugin_assetaudit_audittypes table' . $this->db->error());
       }
    }
 }

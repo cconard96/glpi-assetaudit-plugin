@@ -36,7 +36,8 @@ function plugin_init_assetaudit()
       'states_id' => [
          'label'     => State::getTypeName(1),
          'type'      => 'item',
-         'itemtype'  => State::class
+         'itemtype'  => State::class,
+         'condition' => ['is_visible_{itemtype}', 1]
       ],
       'manufacturers_id' => [
          'label'     => Manufacturer::getTypeName(1),
@@ -59,7 +60,8 @@ function plugin_init_assetaudit()
       'users_id' => [
          'label'     => User::getTypeName(1),
          'type'      => 'item',
-         'itemtype'  => User::class
+         'itemtype'  => User::class,
+         'right'     => 'all'
       ],
       'groups_id' => [
          'label'     => Group::getTypeName(1),
@@ -90,6 +92,7 @@ function plugin_init_assetaudit()
       $PLUGIN_HOOKS['menu_toadd']['assetaudit'] = ['plugins' => PluginAssetauditAudit::class];
    }
    Plugin::registerClass(PluginAssetauditProfile::class, ['addtabon' => ['Profile']]);
+   $PLUGIN_HOOKS['use_massive_action']['assetaudit'] = 1;
    $PLUGIN_HOOKS['add_css']['assetaudit'][] = 'css/assetaudit.css';
 }
 
